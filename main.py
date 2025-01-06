@@ -42,10 +42,31 @@ async def on_message(message):
 
     if message.content.startswith("good bot"):
         await message.channel.send("😊")
+    
+    if message.content.startswith("!uKrevetu") and not message.content.startswith("!uKrevetuLeaderboard"):
+        data = read_db()
+
+        # Ensure 'krevetCounter' exists as a dictionary in the data
+        if "krevetCounter" not in data:
+            data["krevetCounter"] = {}
+
+        # Get the user's current counter or initialize to 0 if not set
+        user_krevet_key = str(message.author.id)
+        krevetCount = data["krevetCounter"].get(user_krevet_key, 0)
+
+        # Increment the counter
+        krevetCount += 1
+        data["krevetCounter"][user_krevet_key] = krevetCount
+
+        # Write the updated data to the database
+        write_db(data)
+
+        # Send the updated counter value
+        await message.channel.send(f"U krevetu! Counter for user <@{message.author.id}> has increased to {krevetCount}")
 
     # Handle faris pedo event
     for pedo_word in pedoArray:
-        if pedo_word in message.content.lower() and str(message.author) == "adnan_silajdzic":
+        if pedo_word in message.content.lower() and str(message.author) == "tickwreck":
             # Read the current count from db.json
             data = read_db()
             farisPedoCount = data.get("farisPedoCount", 0)
@@ -67,5 +88,16 @@ async def on_message(message):
             envyId = "<@253113742273806336>"
             await message.channel.send(f"{envyId} SLURS ARE BEING USED IN CHAT BY {message.author.mention}")
             break
+    
+    # LIST ACTION
+    if message.content.startswith("!farisPedoCounter"):
+        data = read_db()
+        await message.channel.send("The Faris pedo counter is currently at " + str(data.get("farisPedoCount", 0)) + "... so far")
+    
+    if message.content.startswith("!uKrevetuLeaderboard"):
+        data = read_db()
+        for user in data["krevetCounter"]:
+            await message.channel.send("<@"+str(user)+"> has a score of "+ str(data["krevetCounter"][user]))
+        
 
 client.run(os.getenv('TOKEN'))
