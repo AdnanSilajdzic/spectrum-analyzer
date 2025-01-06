@@ -4,17 +4,25 @@ from discord import Intents
 import json
 from dotenv import load_dotenv
 
-# Load environment variables from .env
+# Load environment variables and json files
 load_dotenv()
 with open("bad-words.json", "r") as file:
     badWordsArray = json.load(file)
+with open("pedo-array.json", "r") as file:
+    pedoArray = json.load(file)
+
+def read_db():
+    with open('db.json', 'r') as file:
+        return json.load(file)
+
+def write_db(data):
+    with open('db.json', 'w') as file:
+        json.dump(data, file, indent=4)
+
 
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
 
-# Dictionary to track streaks
-user_streaks = {}
-last_user = None  # Use None instead of an empty string for clarity
 
 @client.event
 async def on_ready():
@@ -32,10 +40,26 @@ async def on_message(message):
     if message.content.startswith("!hello"):
         await message.channel.send(f"Greetings {message.author.mention}")
 
-    # Handle specific words
-    if ("pedophile" in message.content.lower() or "pedo" in message.content.lower() or "pdf file" in message.content.lower()) and \
-       message.author != client.user and str(message.author) == "tickwreck":
-        await message.channel.send("Faris is calling someone a pedo again")
+    if message.content.startswith("good bot"):
+        await message.channel.send("😊")
+
+    # Handle faris pedo event
+    for pedo_word in pedoArray:
+        if pedo_word in message.content.lower() and str(message.author) == "adnan_silajdzic":
+            # Read the current count from db.json
+            data = read_db()
+            farisPedoCount = data.get("farisPedoCount", 0)
+
+            # Increment the count
+            farisPedoCount += 1
+
+            # Update the count in db.json
+            data["farisPedoCount"] = farisPedoCount
+            write_db(data)
+
+            # Send the updated count to the channel
+            await message.channel.send(f"Faris pedo count has been incremented. Current count: {farisPedoCount}")
+            break
 
     # Check if a message contains any bad word
     for bad_word in badWordsArray:
@@ -44,21 +68,4 @@ async def on_message(message):
             await message.channel.send(f"{envyId} SLURS ARE BEING USED IN CHAT BY {message.author.mention}")
             break
 
-    # Handle YAP streak
-    user_id = message.author.id  # Use user ID as the key for the streaks dictionary
-    if last_user == user_id:
-        # Increment the user's streak
-        user_streaks[user_id] = user_streaks.get(user_id, 0) + 1
-    else:
-        # Reset the streak if it's a new user
-        user_streaks[user_id] = 1
-
-    last_user = user_id  # Update the last user
-
-    # Announce the streak
-    streak_count = user_streaks[user_id]
-    if streak_count > 5:  # Announce only if the streak is greater than 4
-        # temporarily disable yap streaks
-        print('yap')
-        #await message.channel.send(f"{message.author.mention} is on a YAP streak with {streak_count} messages in a row!")
 client.run(os.getenv('TOKEN'))
