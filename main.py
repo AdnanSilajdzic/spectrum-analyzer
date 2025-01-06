@@ -58,6 +58,7 @@ async def on_message(message):
     # Announce the streak
     streak_count = user_streaks[user_id]
     if streak_count > 5:  # Announce only if the streak is greater than 4
-        await message.channel.send(f"{message.author.mention} is on a YAP streak with {streak_count} messages in a row!")
-print(os.getenv('TOKEN'))
+        # temporarily disable yap streaks
+        print('yap')
+        #await message.channel.send(f"{message.author.mention} is on a YAP streak with {streak_count} messages in a row!")
 client.run(os.getenv('TOKEN'))
