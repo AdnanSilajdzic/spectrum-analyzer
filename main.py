@@ -31,7 +31,6 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    global last_user  # Use the global variable
 
     # If message is sent by bot, ignore
     if message.author == client.user:
