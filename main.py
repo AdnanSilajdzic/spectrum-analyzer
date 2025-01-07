@@ -1,3 +1,4 @@
+import random
 import discord
 import os
 from discord import Intents
@@ -40,7 +41,7 @@ async def on_message(message):
     if message.content.startswith("!hello"):
         await message.channel.send(f"Greetings {message.author.mention}")
 
-    if message.content.startswith("good bot"):
+    if message.content.startswith("good bot") or message.content.startswith("Good bot"):
         await message.channel.send("😊")
     
     if message.content.startswith("!uKrevetu") and not message.content.startswith("!uKrevetuLeaderboard"):
@@ -81,6 +82,13 @@ async def on_message(message):
             # Send the updated count to the channel
             await message.channel.send(f"Faris pedo count has been incremented. Current count: {farisPedoCount}")
             break
+    
+    #0.1% chance to bully Faris for no reason whatsoever
+    if str(message.author) == "tickwreck":
+        percentage_chance = 0.001
+        if random.random() < percentage_chance:
+            await message.channel.send(f"Get your goofy yahoo ass out of here <@{message.author.id}>")
+
 
     # Check if a message contains any bad word
     for bad_word in badWordsArray:
