@@ -4,6 +4,7 @@ import os
 from discord import Intents
 import json
 from dotenv import load_dotenv
+from utils import findWholeWord
 
 # Load environment variables and json files
 load_dotenv()
@@ -40,10 +41,10 @@ async def on_message(message):
     if message.content.startswith("!hello"):
         await message.channel.send(f"Greetings {message.author.mention}")
 
-    if message.content.startswith("good bot") or message.content.startswith("Good bot"):
+    if findWholeWord("good bot")(message.content.lower()):
         await message.channel.send("😊")
     
-    if message.content.startswith("!uKrevetu") and not message.content.startswith("!uKrevetuLeaderboard"):
+    if findWholeWord("!uKrevetu")(message.content):
         data = read_db()
 
         # Ensure 'krevetCounter' exists as a dictionary in the data
@@ -66,7 +67,7 @@ async def on_message(message):
 
     # Handle faris pedo event
     for pedo_word in pedoArray:
-        if pedo_word in message.content.lower() and str(message.author) == "tickwreck":
+        if findWholeWord(pedo_word)(message.content) and str(message.author) == "tickwreck":
             # Read the current count from db.json
             data = read_db()
             farisPedoCount = data.get("farisPedoCount", 0)
@@ -91,17 +92,17 @@ async def on_message(message):
 
     # Check if a message contains any bad word
     for bad_word in badWordsArray:
-        if bad_word in message.content.lower():
+        if findWholeWord(bad_word)(message.content):
             envyId = "<@253113742273806336>"
             await message.channel.send(f"{envyId} SLURS ARE BEING USED IN CHAT BY {message.author.mention}")
             break
     
     # LIST ACTION
-    if message.content.startswith("!farisPedoCounter"):
+    if findWholeWord("!farisPedoCounter")(message.content):
         data = read_db()
         await message.channel.send("The Faris pedo counter is currently at " + str(data.get("farisPedoCount", 0)) + "... so far")
     
-    if message.content.startswith("!uKrevetuLeaderboard"):
+    if  findWholeWord("!uKrevetuLeaderboard")(message.content):
         data = read_db()
         for user in data["krevetCounter"]:
             await message.channel.send("<@"+str(user)+"> has a score of "+ str(data["krevetCounter"][user]))
