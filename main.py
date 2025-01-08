@@ -4,7 +4,7 @@ import os
 from discord import Intents
 import json
 from dotenv import load_dotenv
-from utils import findWholeWord
+from utils import readDb, writeDb,findWholeWord, updateUKrevetuCount, updatePedoCount
 
 # Load environment variables and json files
 load_dotenv()
@@ -13,18 +13,8 @@ with open("bad-words.json", "r") as file:
 with open("pedo-array.json", "r") as file:
     pedoArray = json.load(file)
 
-def read_db():
-    with open('db.json', 'r') as file:
-        return json.load(file)
-
-def write_db(data):
-    with open('db.json', 'w') as file:
-        json.dump(data, file, indent=4)
-
-
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
-
 
 @client.event
 async def on_ready():
@@ -41,45 +31,19 @@ async def on_message(message):
     if message.content.startswith("!hello"):
         await message.channel.send(f"Greetings {message.author.mention}")
 
+    # Good bot reaction
     if findWholeWord("good bot")(message.content.lower()):
         await message.channel.send("😊")
     
+    # U krevetu event
     if findWholeWord("!uKrevetu")(message.content):
-        data = read_db()
-
-        # Ensure 'krevetCounter' exists as a dictionary in the data
-        if "krevetCounter" not in data:
-            data["krevetCounter"] = {}
-
-        # Get the user's current counter or initialize to 0 if not set
-        user_krevet_key = str(message.author.id)
-        krevetCount = data["krevetCounter"].get(user_krevet_key, 0)
-
-        # Increment the counter
-        krevetCount += 1
-        data["krevetCounter"][user_krevet_key] = krevetCount
-
-        # Write the updated data to the database
-        write_db(data)
-
-        # Send the updated counter value
+        krevetCount = updateUKrevetuCount(message)
         await message.channel.send(f"U krevetu! Counter for user <@{message.author.id}> has increased to {krevetCount}")
 
     # Handle faris pedo event
     for pedo_word in pedoArray:
         if findWholeWord(pedo_word)(message.content) and str(message.author) == "tickwreck":
-            # Read the current count from db.json
-            data = read_db()
-            farisPedoCount = data.get("farisPedoCount", 0)
-
-            # Increment the count
-            farisPedoCount += 1
-
-            # Update the count in db.json
-            data["farisPedoCount"] = farisPedoCount
-            write_db(data)
-
-            # Send the updated count to the channel
+            farisPedoCount = updatePedoCount()
             await message.channel.send(f"Faris pedo count has been incremented. Current count: {farisPedoCount}")
             break
     
@@ -99,11 +63,11 @@ async def on_message(message):
     
     # LIST ACTION
     if findWholeWord("!farisPedoCounter")(message.content):
-        data = read_db()
+        data = readDb()
         await message.channel.send("The Faris pedo counter is currently at " + str(data.get("farisPedoCount", 0)) + "... so far")
     
     if  findWholeWord("!uKrevetuLeaderboard")(message.content):
-        data = read_db()
+        data = readDb()
         for user in data["krevetCounter"]:
             await message.channel.send("<@"+str(user)+"> has a score of "+ str(data["krevetCounter"][user]))
         
