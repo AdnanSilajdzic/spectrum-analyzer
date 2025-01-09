@@ -12,6 +12,8 @@ with open("bad-words.json", "r") as file:
     badWordsArray = json.load(file)
 with open("pedo-array.json", "r") as file:
     pedoArray = json.load(file)
+with open("secret-messages.json", "r") as file:
+    secretMessages = json.load(file)
 
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
@@ -47,6 +49,9 @@ async def on_message(message):
             await message.channel.send(f"Faris pedo count has been incremented. Current count: {farisPedoCount}")
             break
     
+    if findWholeWord("pro tip")(message.content):
+        await message.channel.send(f"<@{message.author.id}> "+secretMessages.get('proTip',0))
+
     #0.1% chance to bully Faris for no reason whatsoever
     if str(message.author) == "tickwreck":
         percentage_chance = 0.001
