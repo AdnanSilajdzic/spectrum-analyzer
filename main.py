@@ -1,10 +1,11 @@
 import random
 import discord
-import os
+from discord.ext import commands
 from discord import Intents
+import os
 import json
 from dotenv import load_dotenv
-from utils import readDb, writeDb,findWholeWord, updateUKrevetuCount, updatePedoCount
+from utils import readDb, writeDb,findWholeWord, updateUKrevetuCount, updatePedoCount, saveQuote, randomQuote
 
 # Load environment variables and json files
 load_dotenv()
@@ -17,16 +18,18 @@ with open("secret-messages.json", "r") as file:
 
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
+bot = commands.Bot(command_prefix="!", intents=intents)
 
-@client.event
+@bot.event
 async def on_ready():
-    print(f"Logged in as {client.user}")
+    print(f"Logged in as {bot.user}")
 
-@client.event
+@bot.event
 async def on_message(message):
+    await bot.process_commands(message)
 
     # If message is sent by bot, ignore
-    if message.author == client.user:
+    if message.author == bot.user:
         return
 
     # Simple hello greeting
@@ -58,7 +61,6 @@ async def on_message(message):
         if random.random() < percentage_chance:
             await message.channel.send(f"Get your goofy yahoo ass out of here <@{message.author.id}>")
 
-
     # Check if a message contains any bad word
     for bad_word in badWordsArray:
         if findWholeWord(bad_word)(message.content):
@@ -75,6 +77,13 @@ async def on_message(message):
         data = readDb()
         for user in data["krevetCounter"]:
             await message.channel.send("<@"+str(user)+"> has a score of "+ str(data["krevetCounter"][user]))
+    
+    if  findWholeWord("!randomQuote")(message.content):
+        variable = await randomQuote(message)
         
+@bot.command()
+async def quoteThis(ctx):
+    variable = await saveQuote(ctx)
 
-client.run(os.getenv('TOKEN'))
+
+bot.run(os.getenv('TOKEN'))

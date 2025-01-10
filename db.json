@@ -1,12 +1,19 @@
 {
     "farisPedoCount": 2,
     "krevetCounter": {
-        "253113742273806336": 1,
+        "253113742273806336": 3,
         "458398404494491648": 3,
         "207626468346298368": 2,
         "723689288210055339": 0,
         "207473983396773890": 0,
         "281479333191614465": 0,
         "1095296760932474921": 2
-    }
+    },
+    "quotes": [
+        {
+            "author": 207626468346298368,
+            "content": "how can someone see the humor, the intelligence, the divinity behind github and enjoy life through it as a neurodegraded shell of a humanoid that I am",
+            "date": "Wednesday, January 08, 2025"
+        }
+    ]
 }

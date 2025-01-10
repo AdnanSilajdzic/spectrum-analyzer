@@ -1,6 +1,8 @@
 #utils
+import random
 import re
 import json
+from time import strftime
 
 def findWholeWord(w):
     return re.compile(r'(?:\W|^){0}(?:\W|$)'.format(re.escape(w)), flags=re.IGNORECASE).search
@@ -44,3 +46,26 @@ def updatePedoCount():
     data["farisPedoCount"] = farisPedoCount
     writeDb(data)
     return farisPedoCount
+
+async def saveQuote(ctx):
+    if(ctx.message.reference is None):
+        await ctx.channel.send("You must use !quoteThis while replying to a message")
+        return
+    else:
+        message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+        quoteObject = {"author":message.author.id, "content": message.content, "date": message.created_at.strftime("%A, %B %d, %Y")}
+
+        data = readDb()
+        quotes = data.get("quotes",0)
+        quotes.append(quoteObject)
+        data['quotes'] = quotes
+        writeDb(data)
+        await ctx.channel.send("The following quote has been saved:")
+        await ctx.channel.send(message.content + " - <@"+str(message.author.id)+"> " + " written on " + message.created_at.strftime("%A, %B %d, %Y"))
+
+async def randomQuote(message):
+    data = readDb()
+    quotes = data.get('quotes')
+    chosenQuote = random.choice(quotes)
+    print(chosenQuote)
+    await message.channel.send(chosenQuote['content'] + " - <@"+str(chosenQuote['author'])+"> " + " written on " + chosenQuote['date'])
